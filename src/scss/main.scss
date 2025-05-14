@@ -1,0 +1,19 @@
+// Functions
+@import "@webpixels/css/core/functions";
+
+// Variables
+@import 'themes/default';
+
+// Boststrap
+@import "bootstrap/dist/css/bootstrap";
+
+// Webpixels Components
+@import "@webpixels/css/base";
+@import "@webpixels/css/forms";
+@import "@webpixels/css/components";
+
+// More.
+@import "css/waves.min.css";
+
+// Custom styles
+@import "user/custom";
