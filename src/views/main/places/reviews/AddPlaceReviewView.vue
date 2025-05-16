@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import classNames from 'classnames'
 import HeaderNavbar from '@components/common/HeaderNavbar.vue'
+import { isAxiosError } from 'axios'
 </script>
 
 <template>
@@ -9,11 +10,7 @@ import HeaderNavbar from '@components/common/HeaderNavbar.vue'
     <!-- star ratings -->
     <div class="d-flex justify-content-center mt-4 mb-4">
         <div class="rating d-flex gap-3">
-            <i
-                v-for="i of 5"
-                @click="form.data.rating = i"
-                :key="i"
-                :class="classNames({
+            <i v-for="i of 5" @click="form.data.rating = i" :key="i" :class="classNames({
                 'bi-star': (form.data.rating <= i - 1),
                 'bi-star-half': (form.data.rating > i - 1 && form.data.rating < i),
                 'bi-star-fill': (form.data.rating >= i),
@@ -25,23 +22,28 @@ import HeaderNavbar from '@components/common/HeaderNavbar.vue'
     <div class="container-fluid">
         <div class="mb-3">
             <label class="form-label">Jelaskan penilaian anda<span class="text-danger">*</span></label>
-            <textarea v-model="form.data.content" class="form-control" rows="8" required placeholder="Bagikan pengalaman anda di tempat ini!"></textarea>
+            <textarea v-model="form.data.content" class="form-control" rows="8" required
+                placeholder="Bagikan pengalaman anda di tempat ini!"></textarea>
         </div>
     </div>
 
     <!-- image review  -->
     <div class="container-fluid">
         <div class="mb-4">
-            <input ref="fileImageInputGalerry" @change="uploadImagePlace" type="file" class="d-none" multiple accept="image/*">
-            <input ref="fileImageInputCamerra" @change="uploadImagePlace" type="file" class="d-none" capture="user" accept="image/*">
+            <input ref="fileImageInputGalerry" @change="uploadImagePlace" type="file" class="d-none" multiple
+                accept="image/*">
+            <input ref="fileImageInputCamerra" @change="uploadImagePlace" type="file" class="d-none" capture="user"
+                accept="image/*">
             <div class="d-flex gap-2">
-                <button @click="($refs.fileImageInputGalerry as HTMLInputElement).click()" type="button" class="btn btn-sm btn-neutral border-base w-50 waves-effect waves-dark">
+                <button @click="($refs.fileImageInputGalerry as HTMLInputElement).click()" type="button"
+                    class="btn btn-sm btn-neutral border-base w-50 waves-effect waves-dark">
                     <span class="pe-2">
                         <i class="bi bi-images"></i>
                     </span>
                     <span>Tambahkan Foto</span>
                 </button>
-                <button @click="($refs.fileImageInputCamerra as HTMLInputElement).click()" type="button" class="btn btn-sm btn-neutral border-base w-50 waves-effect waves-dark">
+                <button @click="($refs.fileImageInputCamerra as HTMLInputElement).click()" type="button"
+                    class="btn btn-sm btn-neutral border-base w-50 waves-effect waves-dark">
                     <span class="pe-2">
                         <i class="bi bi-camera-fill"></i>
                     </span>
@@ -52,10 +54,7 @@ import HeaderNavbar from '@components/common/HeaderNavbar.vue'
     </div>
     <div class="mt-2 image-scrollable-x">
         <div class="d-flex gap-2 ps-2">
-            <div
-                v-for="file of images"
-                :key="file.id"
-                class="col-auto image-item rounded">
+            <div v-for="file of images" :key="file.id" class="col-auto image-item rounded">
                 <div @click="unusedPlaceImage(file.id)" class="close-button">
                     <i class="bi bi-x-circle"></i>
                 </div>
@@ -68,7 +67,8 @@ import HeaderNavbar from '@components/common/HeaderNavbar.vue'
     <!-- post button -->
     <div class="container-fluid mt-4">
         <div class="d-grid w-100">
-            <button @click="postReview()" :disabled="form.loading" type="button" class="btn btn-md btn-primary waves-effect waves-light">
+            <button @click="postReview()" :disabled="form.loading" type="button"
+                class="btn btn-md btn-primary waves-effect waves-light">
                 <span>Posting</span>
                 <span v-if="form.loading">...</span>
             </button>
@@ -85,13 +85,13 @@ import { API_URL_FILE_MAP_CONTENTS, API_URL_PLACE_REVIEWS } from '@/constants/ap
 export default {
 
     computed: {
-        placeId (): string {
+        placeId(): string {
             return this.$route.params.placeId as string
         }
     },
 
     methods: {
-        async uploadImagePlace (event: Event) {
+        async uploadImagePlace(event: Event) {
             const files = (event.target as HTMLInputElement).files
             if (files === null) return
 
@@ -109,12 +109,12 @@ export default {
             }
         },
 
-        unusedPlaceImage (fileId: string) {
+        unusedPlaceImage(fileId: string) {
             this.form.data.imageIds = this.form.data.imageIds.filter((id) => id !== fileId)
             this.images = this.images.filter((file) => file.id !== fileId)
         },
 
-        async postReview () {
+        async postReview() {
             try {
                 this.form.loading = true
                 const url = `${API_URL_PLACE_REVIEWS}?placeId=${this.placeId}`
@@ -131,14 +131,19 @@ export default {
                 }
                 this.$router.back()
             } catch (error) {
+                if (isAxiosError(error) && error.response?.data?.message) {
+                alert(error.response.data.message)
+                } else {
                 alert('Ulasan gagal ditambahkan.')
+                }
                 console.error(error)
             }
             this.form.loading = false
         }
+
     },
 
-    data () {
+    data() {
         return {
             form: {
                 data: {
@@ -160,10 +165,12 @@ export default {
         font-size: 40px;
     }
 }
+
 .image-scrollable-x {
     overflow-x: auto;
     white-space: nowrap;
     scroll-behavior: smooth;
+
     .image-item {
         position: relative;
         display: inline-block;
@@ -172,6 +179,7 @@ export default {
         border: 4px solid #fff;
         border-radius: 0.7rem !important;
         overflow: hidden;
+
         .close-button {
             position: absolute;
             right: 8px;
@@ -179,6 +187,7 @@ export default {
             color: gray;
             font-size: 18px;
         }
+
         img {
             width: 100%;
             height: 100%;

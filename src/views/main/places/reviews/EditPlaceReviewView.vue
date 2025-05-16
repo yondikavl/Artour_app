@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import classNames from 'classnames'
 import HeaderNavbar from '@components/common/HeaderNavbar.vue'
+import { isAxiosError } from 'axios'
 </script>
 
 <template>
@@ -139,7 +140,11 @@ export default {
                 sessionStorage.setItem('place_review_detail', JSON.stringify(this.myReview))
                 this.$router.back()
             } catch (error) {
-                alert('Ulasan gagal disimpan.')
+                if (isAxiosError(error) && error.response?.data?.message) {
+                alert(error.response.data.message)
+                } else {
+                alert('Ulasan gagal ditambahkan.')
+                }
                 console.error(error)
             }
             this.form.loading = false
