@@ -7,6 +7,19 @@ import { isAxiosError } from 'axios'
 <template>
     <HeaderNavbar nav-title="Edit Ulasan" />
 
+    <!-- TOAST -->
+    <div class="toast-container position-fixed top-0 start-0 w-100 d-flex justify-content-center p-3" style="z-index: 9999;">
+        <div ref="toastEl" class="toast w-100 text-bg-{{ alertType }} border-0 shadow rounded overflow-hidden" style="max-width: 600px;" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body text-black text-start">
+                    {{ alertMessage }}
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <!-- star ratings -->
     <div class="d-flex justify-content-center mt-4 mb-4">
         <div class="rating d-flex gap-3">
@@ -121,29 +134,42 @@ export default {
             this.images = this.images.filter((file) => file.id !== fileId)
         },
 
+        showToast(message: string, type: "success" | "danger") {
+            this.alertMessage = message;
+            this.alertType = type;
+
+            this.$nextTick(() => {
+                const toast = new window.bootstrap.Toast(
+                    this.$refs.toastEl as HTMLElement,
+                    { delay: 3000 }
+                );
+                toast.show();
+            });
+        },
+
         async editReview () {
             try {
                 this.form.loading = true
                 const url = API_URL_PLACE_REVIEWS_ID.replace(':placeReviewId', this.placeReviewId as string)
-                if (this.form.data.content.trim() === '') {
-                    alert('Ulasan harus diisi.')
-                    this.form.loading = false
-                    return
+                if (this.form.data.content.trim() === "") {
+                    this.showToast("Ulasan harus diisi.", "danger");
+                    this.form.loading = false;
+                    return;
                 }
                 await axios.put(url, this.form.data)
                 if (window.Android !== undefined) {
                     window.Android.showToast('Ulasan berhasil disimpan.')
                 } else {
-                    alert('Ulasan berhasil disimpan.')
+                    this.showToast("Ulasan berhasil disimpan.", "success");
                 }
                 await this.getMyPlaceReview(this.placeId as string)
                 sessionStorage.setItem('place_review_detail', JSON.stringify(this.myReview))
                 this.$router.back()
             } catch (error) {
                 if (isAxiosError(error) && error.response?.data?.message) {
-                alert(error.response.data.message)
+                    this.showToast(error.response.data.message, "danger");
                 } else {
-                alert('Ulasan gagal ditambahkan.')
+                    this.showToast('Ulasan gagal ditambahkan.', 'danger')
                 }
                 console.error(error)
             }
@@ -177,7 +203,9 @@ export default {
                 },
                 loading: false
             },
-            images: [] as File[]
+            images: [] as File[],
+            alertMessage: "",
+            alertType: "success",
         }
     }
 }
@@ -214,5 +242,27 @@ export default {
             object-fit: cover;
         }
     }
+}
+
+.toast-container {
+  margin-top: 70px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.toast {
+  background-color: #f9e0e3;
+  pointer-events: auto;
+}
+
+.toast-body {
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: start;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
 }
 </style>

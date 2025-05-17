@@ -16,5 +16,6 @@ declare global {
         openGoogleMapDirectionLink: (latitude: number, longitude: number) => void
         AFRAME: any
         $: any
+        bootstrap: any
     }
 }
