@@ -15,4 +15,6 @@ export interface PlaceReviewEntity {
     user?: UserEntity
     place?: PlaceEntity
     images?: File[]
+
+    sentiment?: string
 }

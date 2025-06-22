@@ -45,7 +45,7 @@ import ModalDeletePlaceReview from '@/views/components/modals/ModalDeletePlaceRe
     <!-- review content  -->
     <div class="container-fluid">
         <div class="review-description">
-            <p>{{ review.content }}</p>
+            <p><span v-if="review.sentiment === 'SPAM'" class="badge-spam me-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>SPAM</span>{{ review.content }}</p>
         </div>
     </div>
 
@@ -113,7 +113,17 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.review-description {
-    word-wrap: break-word;
-}
+    .review-description {
+        word-wrap: break-word;
+    }
+
+    .badge-spam {
+        background-color: #ffe0e0;
+        color: #d00000;
+        font-weight: bold;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+        height: fit-content;
+    }
 </style>
